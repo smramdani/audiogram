@@ -22,7 +22,7 @@ import { NR } from '../data/referenceCurves'
 const STEP_DOWN        = 10
 const STEP_UP          = 5
 const START_DB         = -10   // dBFS — clearly audible after calibration
-const MIN_DB           = -80   // deeper floor: room for very sensitive listeners
+const MIN_DB           = -100  // deeper floor: reach very quiet tones (maps to ~-15 dB HL)
 const MAX_DB           = 0     // digital ceiling
 const NR_MAX_MISSES    = 3     // consecutive misses at MAX_DB → mark as No Response
 const TONE_DURATION    = 1000  // ms
