@@ -241,7 +241,15 @@ The **shape** of the audiogram (which frequencies are relatively worse) is much 
 
 ## 📄 License
 
-MIT — free to use, modify, and distribute. See [LICENSE](LICENSE) for details.
+**GNU Affero General Public License v3 (AGPL-3.0)**
+
+Copyright © 2026 Hammed Ramdani
+
+This project is free software — you can redistribute and modify it under the terms of the AGPL v3.
+The key implication for a web app: if you run a **modified version as a network service**, you must
+make the modified source code available to your users.
+
+See [LICENSE](LICENSE) for the full license text.
 
 ---
 
