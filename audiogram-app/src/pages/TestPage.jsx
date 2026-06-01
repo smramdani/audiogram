@@ -19,6 +19,7 @@ import { useSession } from '../context/SessionContext'
 import { formatFreq } from '../utils/formatFreq'
 import { NR } from '../data/referenceCurves'
 
+const COARSE_STEP      = 25    // fast initial descent step until the first miss
 const STEP_DOWN        = 10
 const STEP_UP          = 5
 const START_DB         = -10   // dBFS — clearly audible after calibration
@@ -49,7 +50,9 @@ export default function TestPage() {
   const stopToneRef     = useRef(null)
   const autoTimerRef    = useRef(null)
   const respondingRef   = useRef(false)
-  const maxMissesRef    = useRef(0)   // consecutive misses at MAX_DB → NR detection
+  const maxMissesRef    = useRef(0)       // consecutive misses at MAX_DB → NR detection
+  const coarseRef       = useRef(true)    // true during the fast 25 dB descent (before first miss)
+  const lastHeardRef    = useRef(START_DB)// last level heard during the coarse descent
 
   // ── Finish flag — defer navigate until after state propagates ───────────────
   const [finished, setFinished] = useState(false)
@@ -89,6 +92,8 @@ export default function TestPage() {
     hitsRef.current       = {}
     respondingRef.current = false
     maxMissesRef.current  = 0
+    coarseRef.current     = true
+    lastHeardRef.current  = START_DB
     setTonePhase('idle')
 
     if (autoPlay) {
@@ -129,6 +134,22 @@ export default function TestPage() {
       // A heard response resets the NR counter
       maxMissesRef.current = 0
 
+      // ── COARSE PHASE — fast 25 dB descent until the first miss ────────────
+      if (coarseRef.current) {
+        lastHeardRef.current = db
+        if (db <= MIN_DB) {                 // heard even at the floor → record it
+          recordThreshold(ear, freq, db)
+          advanceFreq(ear, freqIdx)
+          return
+        }
+        dirRef.current = 'down'
+        dbRef.current  = Math.max(db - COARSE_STEP, MIN_DB)
+        respondingRef.current = false
+        setTimeout(() => playAt(dbRef.current, ear, freq), 500)
+        return
+      }
+
+      // ── FINE PHASE — unchanged ────────────────────────────────────────────
       // Count ascending hit only when coming from below
       if (dirRef.current === 'up') {
         hitsRef.current[db] = (hitsRef.current[db] || 0) + 1
@@ -158,6 +179,20 @@ export default function TestPage() {
         maxMissesRef.current = 0  // reset if we're below the ceiling
       }
 
+      // ── First miss ends the COARSE phase → hand over to the fine search ───
+      // Resume from the last level that WAS heard (just above the threshold),
+      // so the fine search starts in the region of interest instead of slowly
+      // climbing back up 5 dB at a time from the overshoot.
+      if (coarseRef.current) {
+        coarseRef.current = false
+        dirRef.current    = 'down'             // re-presenting a heard level → descending, no spurious ascending hit
+        dbRef.current     = lastHeardRef.current
+        respondingRef.current = false
+        setTimeout(() => playAt(dbRef.current, ear, freq), 500)
+        return
+      }
+
+      // ── FINE PHASE — unchanged ────────────────────────────────────────────
       dirRef.current = 'up'
       dbRef.current  = Math.min(db + STEP_UP, MAX_DB)
       respondingRef.current = false
