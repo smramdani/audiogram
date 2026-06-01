@@ -20,7 +20,8 @@ const DISCLAIMER =
 export default function ResultsPage() {
   const { results, toDbHL, frequencies, resetSession, resetResultsOnly, userName } = useSession()
   const navigate = useNavigate()
-  const chartRef = useRef(null)
+  const chartRef    = useRef(null)   // visible chart (with interactive controls)
+  const pdfChartRef = useRef(null)   // clean chart used only for PDF capture
 
   const leftData = Object.entries(results.left || {}).map(([f, db]) => ({
     frequency: Number(f), dbHL: toDbHL(db)
@@ -56,7 +57,7 @@ export default function ResultsPage() {
   }
 
   async function exportPDF() {
-    const canvas = await html2canvas(chartRef.current, { scale: 2, backgroundColor: '#ffffff' })
+    const canvas = await html2canvas(pdfChartRef.current, { scale: 2, backgroundColor: '#ffffff' })
     const imgData = canvas.toDataURL('image/png')
 
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
@@ -150,9 +151,19 @@ export default function ResultsPage() {
         )}
       </div>
 
-      {/* Chart */}
+      {/* Chart — visible, includes interactive reference curve toggles */}
       <div ref={chartRef} className="w-full bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-4">
         <AudiogramChart leftData={leftData} rightData={rightData} />
+      </div>
+
+      {/* PDF-only chart — rendered off-screen, no interactive controls */}
+      <div
+        ref={pdfChartRef}
+        aria-hidden="true"
+        className="bg-white p-4"
+        style={{ position: 'absolute', left: '-9999px', top: 0, width: '700px' }}
+      >
+        <AudiogramChart leftData={leftData} rightData={rightData} forPDF />
       </div>
 
       {/* Threshold table */}

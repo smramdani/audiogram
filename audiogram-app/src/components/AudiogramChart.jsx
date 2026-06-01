@@ -203,7 +203,7 @@ function BandKey() {
 }
 
 // ── Main export ────────────────────────────────────────────────────────────────
-export default function AudiogramChart({ leftData = [], rightData = [] }) {
+export default function AudiogramChart({ leftData = [], rightData = [], forPDF = false }) {
   const [visibleRefs, setVisibleRefs] = useState(new Set())
 
   function toggleRef(id) {
@@ -278,7 +278,9 @@ export default function AudiogramChart({ leftData = [], rightData = [] }) {
 
       <ChartLegend showLeft={leftData.length > 0} showRight={rightData.length > 0} />
       <BandKey />
-      <RefToggle visible={visibleRefs} onToggle={toggleRef} />
+
+      {/* Interactive controls — hidden in PDF export */}
+      {!forPDF && <RefToggle visible={visibleRefs} onToggle={toggleRef} />}
 
       <p className="text-xs text-slate-400 text-center mt-3 px-2">
         * Estimated — accuracy depends on your device and headphones
