@@ -5,6 +5,7 @@ import CalibrationPage from './pages/CalibrationPage'
 import SetupPage from './pages/SetupPage'
 import TestPage from './pages/TestPage'
 import ResultsPage from './pages/ResultsPage'
+import HistoryPage from './pages/HistoryPage'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/setup" element={<SetupPage />} />
           <Route path="/test" element={<TestPage />} />
           <Route path="/results" element={<ResultsPage />} />
+          <Route path="/history" element={<HistoryPage />} />
         </Routes>
       </main>
     </div>

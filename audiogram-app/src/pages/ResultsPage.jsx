@@ -4,7 +4,7 @@
  * Redirects home if no results exist.
  */
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
@@ -18,7 +18,8 @@ const DISCLAIMER =
   'If you have any concerns about your hearing, please consult a qualified audiologist or healthcare professional.'
 
 export default function ResultsPage() {
-  const { results, toDbHL, frequencies, resetSession, resetResultsOnly, userName } = useSession()
+  const { results, toDbHL, frequencies, resetSession, resetResultsOnly, userName, saveCurrentTest, testHistory } = useSession()
+  const [saved, setSaved] = useState(false)
   const navigate = useNavigate()
   const chartRef    = useRef(null)   // visible chart (with interactive controls)
   const pdfChartRef = useRef(null)   // clean chart used only for PDF capture
@@ -233,10 +234,32 @@ export default function ResultsPage() {
           📄 Export PDF
         </button>
 
-        {/* Compare mode — keeps calibration so both people are on the same dB scale */}
+        {/* Save to history */}
+        {!saved ? (
+          <button
+            onClick={() => { saveCurrentTest(); setSaved(true) }}
+            className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-semibold text-base hover:bg-emerald-700 active:scale-95 transition-all"
+          >
+            💾 Save to history
+          </button>
+        ) : (
+          <div className="flex gap-3">
+            <div className="flex-1 py-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center text-emerald-700 text-sm font-medium">
+              ✓ Saved to history
+            </div>
+            <button
+              onClick={() => navigate('/history')}
+              className="flex-1 py-4 rounded-2xl bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 active:scale-95 transition-all"
+            >
+              📋 View history {testHistory.length > 0 && `(${testHistory.length})`}
+            </button>
+          </div>
+        )}
+
+        {/* Test another person — keeps calibration */}
         <button
           onClick={() => { resetResultsOnly(); navigate('/setup') }}
-          className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-semibold text-base hover:bg-emerald-700 active:scale-95 transition-all"
+          className="w-full py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 active:scale-95 transition-all"
         >
           👤 Test another person
         </button>
@@ -246,7 +269,7 @@ export default function ResultsPage() {
 
         <button
           onClick={handleRetake}
-          className="w-full py-3 rounded-2xl bg-white border border-slate-200 text-slate-600 font-medium text-sm hover:bg-slate-50 active:scale-95 transition-all"
+          className="w-full py-3 rounded-2xl bg-white border border-slate-200 text-slate-500 font-medium text-sm hover:bg-slate-50 active:scale-95 transition-all"
         >
           🔄 Retake my own test
         </button>

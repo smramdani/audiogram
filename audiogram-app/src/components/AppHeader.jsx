@@ -5,6 +5,7 @@
  */
 
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useSession } from '../context/SessionContext'
 
 const STEPS = [
   { path: '/calibration', label: 'Calibrate' },
@@ -14,10 +15,12 @@ const STEPS = [
 ]
 
 export default function AppHeader() {
-  const { pathname } = useLocation()
-  const navigate     = useNavigate()
-  const stepIndex    = STEPS.findIndex(s => pathname.startsWith(s.path))
-  const isHome       = pathname === '/'
+  const { pathname }   = useLocation()
+  const navigate       = useNavigate()
+  const { testHistory } = useSession()
+  const stepIndex      = STEPS.findIndex(s => pathname.startsWith(s.path))
+  const isHome         = pathname === '/'
+  const isHistory      = pathname === '/history'
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-100 shadow-sm">
@@ -74,8 +77,22 @@ export default function AppHeader() {
           </div>
         )}
 
-        {/* Tagline on home (mobile) */}
-        {isHome && (
+        {/* History icon — always visible when tests exist, except on history page itself */}
+        {!isHistory && testHistory.length > 0 && (
+          <button
+            onClick={() => navigate('/history')}
+            className="relative flex-shrink-0 w-9 h-9 rounded-xl bg-slate-100 hover:bg-indigo-100 flex items-center justify-center transition-colors"
+            title="Test history"
+          >
+            <span className="text-base">📋</span>
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] font-bold flex items-center justify-center">
+              {testHistory.length}
+            </span>
+          </button>
+        )}
+
+        {/* Tagline on home (mobile) when no history */}
+        {isHome && testHistory.length === 0 && (
           <p className="text-xs text-slate-400 text-right leading-snug sm:hidden">
             Your hearing<br/>test for fun!
           </p>
