@@ -2,6 +2,10 @@
 
 A free, open-source web application that lets anyone test their hearing sensitivity across all audible frequencies, draw a personal audiogram, and export a PDF report — entirely in the browser, with no backend and no data ever leaving the device.
 
+### ▶️ [**Try the live demo →**](https://smramdani.github.io/audiogram/)
+
+No install, no clone, no build — just open the link in your browser (with **headphones on**) and run a test. The demo runs entirely client-side; nothing is uploaded.
+
 > ⚠️ **This app is for informational, educational, and personal use only.** It is not a medical device and does not produce clinically accurate results. If you have any concerns about your hearing, please consult a qualified audiologist or healthcare professional.
 
 ---
