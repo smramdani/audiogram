@@ -1,5 +1,7 @@
 # PRD — Audiogram Web Application
 
+> **Implementation status (v0.1.0):** This document has been reconciled with the as-built application. Functional requirements below reflect what is actually implemented; the few items not yet built are explicitly marked _(planned)_. See [README.md](README.md) for a feature-oriented overview.
+
 ## 1. Problem Statement
 
 People with hearing concerns have no easy, free way to get a first-picture of their hearing sensitivity across frequencies without visiting a clinic. This app lets anyone with a smartphone and headphones run a self-administered hearing test, see their results as a standard audiogram, and export a PDF to share with a doctor if needed.
@@ -70,25 +72,23 @@ People with hearing concerns have no easy, free way to get a first-picture of th
 ### 5.2 Tone Generation
 - **FR-06** Pure sine-wave tones generated client-side via the Web Audio API.
 - **FR-07** Tone panning MUST be hard-left (L=1, R=0) or hard-right (L=0, R=1) depending on selected ear.
-- **FR-08** Threshold search MUST follow a simplified **Hughson-Westlake** algorithm per frequency:
-  - Start at a level clearly above the estimated threshold (default: 40 dB above calibration anchor).
-  - Step **down 10 dB** each time the user hears the tone.
-  - Step **up 5 dB** each time the user misses it.
-  - Threshold = lowest level heard on ≥ 2 of 3 ascending trials.
+- **FR-08** Threshold search runs in two phases per frequency:
+  - **Coarse phase** — starting at −10 dBFS, descend in **25 dB steps** while the tone is heard (fast bracketing). On the first miss, hand over to the fine phase resuming from the last-heard level.
+  - **Fine phase (Hughson-Westlake)** — step **down 10 dB** on heard, **up 5 dB** on missed. Threshold = lowest level heard on **≥ 2 ascending trials** at the same level.
+  - **Floor** — if the tone is still heard at −100 dBFS, that level is recorded as the threshold.
+  - **No Response (NR)** — after **3 consecutive misses at the 0 dBFS ceiling**, the frequency is marked NR.
 - **FR-09** Each tone playback MUST have a defined duration (default 1 s) with 50 ms fade-in/out to avoid clicks.
 
 ### 5.3 Test Modes
-- **FR-10** **Auto sweep** — app drives progression, plays each tone, waits for user response or timeout (5 s default), then moves to next step.
-- **FR-11** **Manual mode** — user triggers each tone via a "Play" button; marks heard/not-heard; advances with "Next".
+- **FR-10** **Auto sweep** — app drives progression, plays each tone, and treats no response within ~4.5 s as "not heard", then continues the algorithm automatically.
+- **FR-11** **Manual mode** — user triggers each tone via a "Play" button and marks heard / not-heard; the algorithm advances automatically once a threshold (or NR) is found.
 - **FR-12** User can switch mode from the settings panel before starting the test.
-- **FR-13** User can re-test any single frequency during the session without restarting the full sweep.
+- **FR-13** User can re-test any single frequency during the session by tapping its (completed) frequency chip, without restarting the full sweep.
 
 ### 5.4 Audiogram Chart
-- **FR-14** Chart plots dB HL (y-axis, 0 at top, −10 to 120) vs. frequency in Hz (x-axis, logarithmic scale).
-- **FR-15** Standard symbols: O (red, right ear), X (blue, left ear).
-- **FR-16** Chart shows **two layers**:
-  - Primary: relative audiogram (shape — always accurate regardless of device).
-  - Secondary: estimated absolute dB HL values from the calibration anchor, labelled *"Estimated — accuracy depends on your device and headphones."*
+- **FR-14** Chart plots dB HL (y-axis inverted, domain −30 at top to 120 at bottom) vs. frequency in Hz (x-axis, logarithmic scale). The x-axis domain and ticks adapt to the active frequency preset.
+- **FR-15** Standard symbols: O (red, right ear), X (blue, left ear), connected by lines; NR shown as a downward arrow ↓ at the bottom boundary.
+- **FR-16** Estimated dB HL values are plotted with coloured hearing-range bands (Normal / Mild / Moderate / Mod-severe / Severe) and labelled *"Estimated — accuracy depends on your device and headphones."* Toggleable pedagogic reference curves (child, 60-year-old, dog, bat) can be overlaid.
 - **FR-17** Both ears shown on the same chart when both have been tested.
 - **FR-18** Chart is responsive and readable on a 375 px wide screen.
 
@@ -98,13 +98,20 @@ People with hearing concerns have no easy, free way to get a first-picture of th
 - **FR-20** The disclaimer MUST be acknowledged (checkbox or "I understand" button) before the user can start the first test. It does not need to be re-acknowledged on subsequent tests in the same session.
 
 ### 5.6 PDF Export
-- **FR-21** Export includes: audiogram chart image, test date, frequency/threshold table, ear labels, and the full disclaimer text.
+- **FR-21** Export includes: audiogram chart image, user name (if given), test date, frequency/threshold table, ear labels, and the full disclaimer text. Interactive controls (reference-curve toggles) are excluded from the captured chart.
 - **FR-22** PDF is generated client-side (no data sent to a server).
-- **FR-23** File name format: `audiogram_YYYY-MM-DD.pdf`.
+- **FR-23** File name format: `audiogram_<Name>_YYYY-MM-DD.pdf` (name omitted if not provided).
 
 ### 5.7 Frequency Configuration
-- **FR-24** Settings panel lets user set: start frequency, end frequency, step (octave/half-octave/custom Hz list).
-- **FR-25** Frequency range validates that all values are within 20 Hz – 20 000 Hz.
+- **FR-24** The setup screen lets the user pick one of four **frequency presets**: Standard clinical (250–8 000 Hz), Half-octave, Extended (125 Hz–12 kHz), and Full range (20 Hz–20 kHz, ISO ½-octave). _(Free min/max/step entry is not implemented — presets cover the use cases.)_
+- **FR-25** All preset frequencies lie within the 20 Hz – 20 000 Hz human audible range.
+
+### 5.8 User Name & Test History
+- **FR-26** The setup screen accepts an optional **user name**, shown on the results page and printed in the PDF.
+- **FR-27** From the results page the user can **save the current test to an in-session history** (name, date/time, frequencies, results, calibration anchor). History is in-memory and cleared on page reload.
+- **FR-28** A **history page** lists saved tests with date/time, name and a colour-coded threshold summary, and lets the user **rename**, **delete** individual tests, or **reset all**.
+- **FR-29** The user can select two or more saved tests to **compare** them on a single overlaid chart (per-user colour; left ear = solid ✕, right ear = dashed ○) and export the comparison as a PDF.
+- **FR-30** "**Test another person**" resets only the threshold results while keeping the calibration anchor, so multiple users tested in one session are measured on the same physical scale.
 
 ---
 
@@ -114,7 +121,7 @@ People with hearing concerns have no easy, free way to get a first-picture of th
 |---|-------------|
 | NFR-01 | Works on Safari iOS 16+, Chrome Android 110+, and desktop Chrome/Firefox/Safari. |
 | NFR-02 | All audio and PDF generation runs client-side — zero backend for v1. |
-| NFR-03 | App is installable as a PWA (manifest + service worker) for offline use. |
+| NFR-03 | App is installable as a PWA (manifest + service worker) for offline use. _(planned — not yet implemented)_ |
 | NFR-04 | First meaningful paint < 2 s on a 4G connection. |
 | NFR-05 | Touch targets ≥ 48 × 48 px. |
 | NFR-06 | No data is transmitted or stored externally. |
@@ -149,9 +156,16 @@ The smallest thing that delivers value end-to-end:
 7. Audiogram chart (relative shape + estimated dB HL with caveat label).
 8. PDF export including disclaimer text.
 
-**Iteration 2** — Manual step-by-step mode, re-test a single frequency, frequency configuration UI.  
-**Iteration 3** — PWA / offline support, half-octave bands, UX polish.  
-**Iteration 4** — Extended frequencies (125 Hz, 16 kHz), plain-language interpretation hints ("thresholds appear elevated at high frequencies"), share/print link.
+**Delivered since MVP:**
+- **Iteration 2** ✅ — Manual mode, re-test a single frequency, frequency presets, sticky app header.
+- **Test history** ✅ — Save/list/rename/delete/reset tests in-session, multi-user comparison chart, comparison PDF, per-user name.
+- **Range & engine** ✅ — Full-range preset (20 Hz–20 kHz), NR detection, −100 dBFS floor, coarse-descent acceleration.
+
+**Planned next:**
+- PWA / offline support (manifest + service worker).
+- Persist history in `localStorage` so it survives a page reload.
+- Plain-language interpretation hints ("thresholds appear elevated at high frequencies").
+- Loudness calibration improvement (optional sound-level-meter integration).
 
 ---
 
@@ -159,10 +173,11 @@ The smallest thing that delivers value end-to-end:
 
 | # | Question | Owner | Priority |
 |---|---|---|---|
-| ~~OQ-01~~ | ~~Volume calibration approach~~ | — | **Resolved** — single-point voluntary loudness match at 1 kHz + Hughson-Westlake threshold search. |
+| ~~OQ-01~~ | ~~Volume calibration approach~~ | — | **Resolved** — single-point voluntary loudness match at 1 kHz + two-phase threshold search. |
 | ~~OQ-02~~ | ~~Medical disclaimer~~ | — | **Resolved** — mandatory acknowledgement on first use; disclaimer printed on PDF. |
-| OQ-03 | Should results persist in localStorage between sessions to enable a "history" view? | Product | Medium |
-| OQ-04 | Is there demand for a "compare over time" view (two test dates on the same chart)? | Product | Low |
+| ~~OQ-04~~ | ~~Compare multiple tests on one chart~~ | — | **Resolved** — in-session multi-user comparison chart + comparison PDF implemented. |
+| OQ-03 | Should the history persist in `localStorage` across page reloads? (Currently in-memory only — history view itself is built.) | Product | Medium |
+| OQ-05 | Should we add plain-language interpretation of results for non-expert users? | Product | Low |
 
 ---
 
