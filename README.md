@@ -37,9 +37,36 @@ No install, no clone, no build — just open the link in your browser (with **he
 
 ## 🖼 Screenshots
 
-| Landing | Calibration | Test | Results |
-|---|---|---|---|
-| Disclaimer + consent | Volume reference tone | Frequency sweep | Audiogram + reference curves |
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/1-landing.png" alt="Landing page with disclaimer" width="240"><br>
+      <sub><b>1. Landing</b> — what it does + mandatory disclaimer</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/2-calibration.png" alt="Volume calibration step" width="240"><br>
+      <sub><b>2. Calibration</b> — 1 kHz reference tone</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/3-setup.png" alt="Test settings: mode, frequency preset, name" width="240"><br>
+      <sub><b>3. Setup</b> — mode, frequency preset, name</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/4-test.png" alt="Test in progress" width="240"><br>
+      <sub><b>4. Test</b> — "I heard it / Not heard"</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/5-results.png" alt="Results: audiogram, table, PDF export" width="240"><br>
+      <sub><b>5. Results</b> — audiogram, bands, table, PDF export</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/6-history-comparison.png" alt="Test history and multi-user comparison" width="240"><br>
+      <sub><b>6. History</b> — multi-user comparison chart</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
