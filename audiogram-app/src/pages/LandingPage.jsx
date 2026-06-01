@@ -21,12 +21,10 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen px-4 py-10 max-w-lg mx-auto">
-      {/* Header */}
+    <div className="flex flex-col items-center px-4 py-8 max-w-lg mx-auto">
+      {/* Hero tagline — header bar already shows the app name */}
       <div className="mb-8 text-center">
-        <span className="text-5xl">🎧</span>
-        <h1 className="mt-4 text-3xl font-bold text-slate-900">Audiogram</h1>
-        <p className="mt-2 text-slate-500 text-sm">Personal hearing sensitivity test</p>
+        <p className="text-slate-500 text-sm">Test your hearing sensitivity across all frequencies<br/>and draw your personal audiogram 📊</p>
       </div>
 
       {/* What is this */}

@@ -66,16 +66,14 @@ export default function CalibrationPage() {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen px-4 py-10 max-w-lg mx-auto">
-      <button onClick={() => navigate('/')} className="self-start text-sm text-slate-400 hover:text-slate-600 mb-6">
-        ← Back
-      </button>
-
-      <span className="text-5xl mb-4">🔉</span>
-      <h1 className="text-2xl font-bold text-slate-900 mb-2 text-center">Volume calibration</h1>
-      <p className="text-slate-500 text-sm text-center mb-8">
-        We need to set a reference volume before the test.
-      </p>
+    <div className="flex flex-col items-center px-4 py-8 max-w-lg mx-auto">
+      <div className="w-full flex items-center gap-3 mb-6">
+        <button onClick={() => navigate('/')} className="text-sm text-slate-400 hover:text-slate-600">← Back</button>
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 leading-tight">Step 1 — Volume calibration</h1>
+          <p className="text-xs text-slate-400">Set a reference volume before the test.</p>
+        </div>
+      </div>
 
       <div className="w-full bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6 space-y-4 text-sm text-slate-700">
         <p className="font-medium text-slate-800">Follow these steps:</p>

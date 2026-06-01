@@ -62,14 +62,14 @@ export default function SetupPage() {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen px-4 py-10 max-w-lg mx-auto">
-      <button onClick={() => navigate('/calibration')} className="self-start text-sm text-slate-400 hover:text-slate-600 mb-6">
-        ← Back
-      </button>
-
-      <span className="text-4xl mb-3">⚙️</span>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1 text-center">Test settings</h1>
-      <p className="text-sm text-slate-500 text-center mb-8">Customise before you start</p>
+    <div className="flex flex-col items-center px-4 py-8 max-w-lg mx-auto">
+      <div className="w-full flex items-center gap-3 mb-6">
+        <button onClick={() => navigate('/calibration')} className="text-sm text-slate-400 hover:text-slate-600">← Back</button>
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 leading-tight">Step 2 — Test settings</h1>
+          <p className="text-xs text-slate-400">Customise before you start</p>
+        </div>
+      </div>
 
       {/* ── Test mode ─────────────────────────────────────────────────────── */}
       <div className="w-full mb-6">
